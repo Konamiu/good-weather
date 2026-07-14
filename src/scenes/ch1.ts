@@ -21,6 +21,7 @@ const WORLD_H = 700
 const DOOR_XS = [64, 184]
 const STAIR_X = 300 // 楼梯区左缘
 const GOAL = FLOORS * DOOR_XS.length
+const STREET_FOOT_Y = 518
 
 interface Door {
   floor: number
@@ -58,6 +59,8 @@ export class Ch1Scene implements Scene {
     climbT: 0, // >0 表示爬楼动画中
   }
   doors: Door[] = []
+  /** 楼道浮尘（质感层） */
+  dust: { x: number; y: number; p: number }[] = []
   given = 0
   msgIdx = 0
   toasts: Toast[] = []
@@ -70,6 +73,8 @@ export class Ch1Scene implements Scene {
   enter() {
     for (let f = 0; f < FLOORS; f++)
       for (const x of DOOR_XS) this.doors.push({ floor: f, x, done: false, bubble: null, bubbleT: 0 })
+    for (let i = 0; i < 48; i++)
+      this.dust.push({ x: Math.random() * W, y: Math.random() * WORLD_H, p: Math.random() * Math.PI * 2 })
   }
 
   // ---------- 更新 ----------
@@ -77,7 +82,7 @@ export class Ch1Scene implements Scene {
     if (this.phase === 'building') this.updateBuilding(g)
     if (this.phase === 'walkhome') {
       this.homeX += 0.9
-      if (this.duskAlpha < 0.32) this.duskAlpha += 0.003
+      if (this.duskAlpha < 0.16) this.duskAlpha += 0.002 // 色调交给mood滤镜，覆盖层只留薄薄一层
       this.tickToasts()
       if (this.homeX > W + 40) this.startNight(g)
     }
@@ -93,6 +98,11 @@ export class Ch1Scene implements Scene {
     const b = this.boy
     this.tickToasts()
     this.doors.forEach(d => d.bubble && d.bubbleT++)
+    this.dust.forEach(m => {
+      m.y -= 0.07
+      m.x += Math.sin(g.t / 40 + m.p) * 0.12
+      if (m.y < 0) m.y = WORLD_H
+    })
 
     // 爬楼动画
     if (b.climbT > 0) {
@@ -160,6 +170,7 @@ export class Ch1Scene implements Scene {
       window.setTimeout(() => {
         this.phase = 'walkhome'
         g.audio.bgm('dusk')
+        g.setMood('dusk')
         this.toast(g, '今天也辛苦啦')
       }, 1600)
     }
@@ -174,6 +185,7 @@ export class Ch1Scene implements Scene {
   private startNight(g: Game) {
     this.phase = 'night'
     g.audio.cicada(false)
+    g.setMood('night')
     this.chat = [{ her: true, s: '下班啦？今天累不累呀' }]
     this.choice = ['腿快跑断了…但还好', '看到你消息，就不累了']
   }
@@ -191,6 +203,7 @@ export class Ch1Scene implements Scene {
           this.phase = 'end'
           g.audio.bgm('off')
           g.audio.sndOk()
+          g.setMood('none')
           g.save.unlock(1)
         }, 1800)
       }, 1500)
@@ -207,7 +220,7 @@ export class Ch1Scene implements Scene {
       ctx.drawImage(g.assets.bg, 0, 0)
       if (this.phase === 'walkhome') {
         const f = Math.floor(g.t / 8) % 4
-        g.assets.boyWalkSide.draw(ctx, f, this.homeX, 470)
+        g.assets.boyWalkSide.draw(ctx, f, this.homeX, STREET_FOOT_Y - CH)
       }
       if (this.duskAlpha > 0) {
         ctx.fillStyle = `rgba(214,110,58,${this.duskAlpha})`
@@ -238,6 +251,18 @@ export class Ch1Scene implements Scene {
       // 窗户（左侧，透出天色）
       ctx.fillStyle = '#a8d8e8'
       ctx.fillRect(14, sy - 64, 26, 34)
+      // 正午阳光从窗口斜切进楼道（质感层）
+      ctx.save()
+      ctx.globalAlpha = 0.1
+      ctx.fillStyle = '#fff4d6'
+      ctx.beginPath()
+      ctx.moveTo(14, sy - 64)
+      ctx.lineTo(40, sy - 64)
+      ctx.lineTo(108, sy)
+      ctx.lineTo(66, sy)
+      ctx.closePath()
+      ctx.fill()
+      ctx.restore()
       // 楼层号
       txt(ctx, `${f + 1}F`, 46, sy - 60, 10, '#8a8580')
       // 门
@@ -263,6 +288,12 @@ export class Ch1Scene implements Scene {
         txt(ctx, '▲', STAIR_X + 28, sy - 88, 12, '#6f6a5e', 'center')
       }
     }
+    // 浮尘（光里的尘埃，闪烁）
+    this.dust.forEach(m => {
+      const a = 0.18 + 0.18 * Math.sin(g.t / 18 + m.p)
+      ctx.fillStyle = `rgba(255,244,214,${a.toFixed(2)})`
+      ctx.fillRect(m.x, m.y, 1.5, 1.5)
+    })
     // 男主
     const sheet = b.climbT > 0 ? g.assets.boyWalkUp : b.moving ? g.assets.boyWalkSide : g.assets.boyIdle
     const f = Math.floor(g.t / (b.moving || b.climbT > 0 ? 8 : 24)) % sheet.frames
@@ -343,6 +374,7 @@ export class Ch1Scene implements Scene {
         this.phase = 'building'
         g.audio.cicada(true)
         g.audio.bgm('day')
+        g.setMood('noon')
       }
       return
     }

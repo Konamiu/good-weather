@@ -24,7 +24,18 @@ npm run build    # 产物在 dist/
 src/core/     引擎（场景循环/输入/音频/存档/切帧）
 src/scenes/   章节场景（title → memo备忘录壳 → ch1蝉鸣 → …）
 public/assets 像素素材（规格见桌面《好天气-美术规格》系列文档）
+tools/art/    可复现像素素材生成器与逐像素校验器
 ```
+
+## 角色素材管线
+
+第1.2批角色使用原生 `48×64` 帧、三阶明暗和选择性描边，由代码直接写入RGBA PNG：
+
+```bash
+npm run art:refresh
+```
+
+工艺研究记录见 `docs/美术工艺研究-NinjaAdventure.md`；CC0参考包不进入仓库。
 
 ## 章节路线图
 

@@ -7,10 +7,16 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "art:generate": "node tools/art/generate-characters-1.2.mjs",
+    "art:verify": "node tools/art/verify-characters-1.2.mjs",
+    "art:refresh": "npm run art:generate && npm run art:verify"
   },
   "devDependencies": {
     "typescript": "^5.5.0",
     "vite": "^5.4.0"
+  },
+  "dependencies": {
+    "pixi.js": "^8.19.0"
   }
 }

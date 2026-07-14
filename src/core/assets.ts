@@ -49,6 +49,7 @@ export interface GameAssets {
   boyRunSide: Sheet
   girlIdle: Sheet
   girlWalkDown: Sheet
+  girlWalkUp: Sheet
   girlWalkSide: Sheet
   girlSing: Sheet
 }
@@ -61,24 +62,25 @@ const load = (name: string) =>
     i.src = `assets/${name}`
   })
 
-// 角色帧尺寸：1.1批为32x48，1.2批升级到48x64后改这里即可
-export const CW = 32
-export const CH = 48
+// 1.2批：原生48x64角色帧。场景统一通过CW/CH计算站位与切帧。
+export const CW = 48
+export const CH = 64
 
 export async function loadAssets(): Promise<GameAssets> {
-  const [bg, phone, rain, bi, bwd, bwu, bws, brs, gi, gwd, gws, gs] = await Promise.all([
+  const [bg, phone, rain, bi, bwd, bwu, bws, brs, gi, gwd, gwu, gws, gs] = await Promise.all([
     load('bg_summer_street_360x640.png'),
     load('ui_phone_frame_300x520.png'),
     load('fx_rain_3f_360x640.png'),
-    load('boy_idle_down_2f_32x48.png'),
-    load('boy_walk_down_4f_32x48.png'),
-    load('boy_walk_up_4f_32x48.png'),
-    load('boy_walk_side_4f_32x48.png'),
-    load('boy_run_side_4f_32x48.png'),
-    load('girl_idle_down_2f_32x48.png'),
-    load('girl_walk_down_4f_32x48.png'),
-    load('girl_walk_side_4f_32x48.png'),
-    load('girl_idle_sing_2f_32x48.png'),
+    load('boy_idle_down_2f_48x64.png'),
+    load('boy_walk_down_4f_48x64.png'),
+    load('boy_walk_up_4f_48x64.png'),
+    load('boy_walk_side_4f_48x64.png'),
+    load('boy_run_side_4f_48x64.png'),
+    load('girl_idle_down_2f_48x64.png'),
+    load('girl_walk_down_4f_48x64.png'),
+    load('girl_walk_up_4f_48x64.png'),
+    load('girl_walk_side_4f_48x64.png'),
+    load('girl_idle_sing_2f_48x64.png'),
   ])
   return {
     bg,
@@ -91,6 +93,7 @@ export async function loadAssets(): Promise<GameAssets> {
     boyRunSide: new Sheet(brs, CW, CH, 4),
     girlIdle: new Sheet(gi, CW, CH, 2),
     girlWalkDown: new Sheet(gwd, CW, CH, 4),
+    girlWalkUp: new Sheet(gwu, CW, CH, 4),
     girlWalkSide: new Sheet(gws, CW, CH, 4),
     girlSing: new Sheet(gs, CW, CH, 2),
   }
