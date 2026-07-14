@@ -1,100 +1,66 @@
-// 素材加载：雪碧图按固定帧宽等距切帧
-export class Sheet {
-  constructor(
-    public img: HTMLImageElement,
-    public fw: number,
-    public fh: number,
-    public frames: number,
-  ) {}
+// 素材加载：雪碧图切成 Texture[]，全部最近邻采样（像素锐利）
+import { Assets, Rectangle, Texture } from 'pixi.js'
 
-  draw(ctx: CanvasRenderingContext2D, f: number, x: number, y: number, flip = false) {
-    const sx = (f % this.frames) * this.fw
-    if (flip) {
-      ctx.save()
-      ctx.translate(x + this.fw, y)
-      ctx.scale(-1, 1)
-      ctx.drawImage(this.img, sx, 0, this.fw, this.fh, 0, 0, this.fw, this.fh)
-      ctx.restore()
-    } else {
-      ctx.drawImage(this.img, sx, 0, this.fw, this.fh, x, y, this.fw, this.fh)
-    }
-  }
-
-  /** 换色副本（占位NPC用） */
-  tinted(color: string): Sheet {
-    const c = document.createElement('canvas')
-    c.width = this.img.width
-    c.height = this.img.height
-    const x = c.getContext('2d')!
-    x.drawImage(this.img, 0, 0)
-    x.globalCompositeOperation = 'source-atop'
-    x.globalAlpha = 0.45
-    x.fillStyle = color
-    x.fillRect(0, 0, c.width, c.height)
-    const img = new Image()
-    img.src = c.toDataURL()
-    const s = new Sheet(img, this.fw, this.fh, this.frames)
-    return s
-  }
-}
+// 角色帧尺寸：1.1批为32x48，1.2批升级到48x64后改这里即可
+export const CW = 32
+export const CH = 48
 
 export interface GameAssets {
-  bg: HTMLImageElement
-  phone: HTMLImageElement
-  rain: Sheet
-  boyIdle: Sheet
-  boyWalkDown: Sheet
-  boyWalkUp: Sheet
-  boyWalkSide: Sheet
-  boyRunSide: Sheet
-  girlIdle: Sheet
-  girlWalkDown: Sheet
-  girlWalkUp: Sheet
-  girlWalkSide: Sheet
-  girlSing: Sheet
+  bg: Texture
+  phone: Texture
+  rain: Texture[]
+  boyIdle: Texture[]
+  boyWalkDown: Texture[]
+  boyWalkUp: Texture[]
+  boyWalkSide: Texture[]
+  boyRunSide: Texture[]
+  girlIdle: Texture[]
+  girlWalkDown: Texture[]
+  girlWalkSide: Texture[]
+  girlSing: Texture[]
 }
 
-const load = (name: string) =>
-  new Promise<HTMLImageElement>((res, rej) => {
-    const i = new Image()
-    i.onload = () => res(i)
-    i.onerror = rej
-    i.src = `assets/${name}`
-  })
+const FILES = [
+  'bg_summer_street_360x640.png',
+  'ui_phone_frame_300x520.png',
+  'fx_rain_3f_360x640.png',
+  'boy_idle_down_2f_32x48.png',
+  'boy_walk_down_4f_32x48.png',
+  'boy_walk_up_4f_32x48.png',
+  'boy_walk_side_4f_32x48.png',
+  'boy_run_side_4f_32x48.png',
+  'girl_idle_down_2f_32x48.png',
+  'girl_walk_down_4f_32x48.png',
+  'girl_walk_side_4f_32x48.png',
+  'girl_idle_sing_2f_32x48.png',
+]
 
-// 1.2批：原生48x64角色帧。场景统一通过CW/CH计算站位与切帧。
-export const CW = 48
-export const CH = 64
+function slice(tex: Texture, fw: number, fh: number, n: number): Texture[] {
+  return Array.from(
+    { length: n },
+    (_, i) => new Texture({ source: tex.source, frame: new Rectangle(i * fw, 0, fw, fh) }),
+  )
+}
 
 export async function loadAssets(): Promise<GameAssets> {
-  const [bg, phone, rain, bi, bwd, bwu, bws, brs, gi, gwd, gwu, gws, gs] = await Promise.all([
-    load('bg_summer_street_360x640.png'),
-    load('ui_phone_frame_300x520.png'),
-    load('fx_rain_3f_360x640.png'),
-    load('boy_idle_down_2f_48x64.png'),
-    load('boy_walk_down_4f_48x64.png'),
-    load('boy_walk_up_4f_48x64.png'),
-    load('boy_walk_side_4f_48x64.png'),
-    load('boy_run_side_4f_48x64.png'),
-    load('girl_idle_down_2f_48x64.png'),
-    load('girl_walk_down_4f_48x64.png'),
-    load('girl_walk_up_4f_48x64.png'),
-    load('girl_walk_side_4f_48x64.png'),
-    load('girl_idle_sing_2f_48x64.png'),
-  ])
+  await Assets.load(FILES.map(f => ({ alias: f, src: `assets/${f}` })))
+  const T = (f: string): Texture => {
+    const t = Assets.get<Texture>(f)
+    t.source.scaleMode = 'nearest'
+    return t
+  }
   return {
-    bg,
-    phone,
-    rain: new Sheet(rain, 360, 640, 3),
-    boyIdle: new Sheet(bi, CW, CH, 2),
-    boyWalkDown: new Sheet(bwd, CW, CH, 4),
-    boyWalkUp: new Sheet(bwu, CW, CH, 4),
-    boyWalkSide: new Sheet(bws, CW, CH, 4),
-    boyRunSide: new Sheet(brs, CW, CH, 4),
-    girlIdle: new Sheet(gi, CW, CH, 2),
-    girlWalkDown: new Sheet(gwd, CW, CH, 4),
-    girlWalkUp: new Sheet(gwu, CW, CH, 4),
-    girlWalkSide: new Sheet(gws, CW, CH, 4),
-    girlSing: new Sheet(gs, CW, CH, 2),
+    bg: T('bg_summer_street_360x640.png'),
+    phone: T('ui_phone_frame_300x520.png'),
+    rain: slice(T('fx_rain_3f_360x640.png'), 360, 640, 3),
+    boyIdle: slice(T('boy_idle_down_2f_32x48.png'), CW, CH, 2),
+    boyWalkDown: slice(T('boy_walk_down_4f_32x48.png'), CW, CH, 4),
+    boyWalkUp: slice(T('boy_walk_up_4f_32x48.png'), CW, CH, 4),
+    boyWalkSide: slice(T('boy_walk_side_4f_32x48.png'), CW, CH, 4),
+    boyRunSide: slice(T('boy_run_side_4f_32x48.png'), CW, CH, 4),
+    girlIdle: slice(T('girl_idle_down_2f_32x48.png'), CW, CH, 2),
+    girlWalkDown: slice(T('girl_walk_down_4f_32x48.png'), CW, CH, 4),
+    girlWalkSide: slice(T('girl_walk_side_4f_32x48.png'), CW, CH, 4),
+    girlSing: slice(T('girl_idle_sing_2f_32x48.png'), CW, CH, 2),
   }
 }

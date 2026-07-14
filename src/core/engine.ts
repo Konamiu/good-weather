@@ -1,6 +1,5 @@
-// 微引擎：逻辑层仍是 360x640 Canvas2D 立即模式（场景代码不变），
-// 渲染层升级为 PixiJS v8 —— Canvas 画面作为纹理进 WebGL，之上叠全屏滤镜(色彩分级等)。
-import { Application, Sprite, Texture, ColorMatrixFilter } from 'pixi.js'
+// 引擎：PixiJS v8 原生场景图。GameScene 即 Container，对象级滤镜/补间全部可用。
+import { Application, ColorMatrixFilter, Container, Sprite, Texture } from 'pixi.js'
 import type { GameAssets } from './assets'
 import { AudioSys } from './audio'
 import { Save } from './save'
@@ -9,28 +8,22 @@ import { applyMood, type Mood } from './mood'
 export const W = 360
 export const H = 640
 
-export interface Scene {
-  enter?(g: Game): void
-  update(g: Game): void
-  draw(g: Game, ctx: CanvasRenderingContext2D): void
-  /** 逻辑坐标系点击 */
+export abstract class GameScene extends Container {
+  /** 场景内帧计数（由引擎递增） */
+  t = 0
+  enter(_g: Game): void {}
+  update(_g: Game): void {}
   onTap?(g: Game, x: number, y: number): void
-  /** 长按（显影用） */
   onHold?(g: Game, x: number, y: number): void
 }
 
 export class Game {
-  /** 逻辑画布（离屏）：场景往这里画 */
-  canvas: HTMLCanvasElement
-  ctx: CanvasRenderingContext2D
-  app: Application | null = null
-  private screenTex: Texture | null = null
+  app = new Application()
+  /** 场景层（mood滤镜作用于此，暗角不受影响） */
+  private sceneLayer = new Container()
   private grade = new ColorMatrixFilter()
-  private vignette: CanvasGradient | null = null
+  scene: GameScene | null = null
 
-  scene: Scene | null = null
-  /** 当前场景内的帧计数 */
-  t = 0
   keys: Record<string, boolean> = {}
   /** 本帧刚按下的键（边沿触发） */
   pressed = new Set<string>()
@@ -38,26 +31,13 @@ export class Game {
   audio = new AudioSys()
   save = new Save()
 
-  constructor() {
-    this.canvas = document.createElement('canvas')
-    this.canvas.width = W
-    this.canvas.height = H
-    this.ctx = this.canvas.getContext('2d')!
-    this.ctx.imageSmoothingEnabled = false
-  }
-
-  /** 初始化 Pixi 渲染层并挂载 */
   async init(mount: HTMLElement) {
-    const app = new Application()
-    await app.init({ width: W, height: H, background: '#151318', antialias: false })
-    this.app = app
-    mount.replaceWith(app.canvas)
+    await this.app.init({ width: W, height: H, background: '#151318', antialias: false, roundPixels: true })
+    mount.replaceWith(this.app.canvas)
 
-    this.screenTex = Texture.from(this.canvas)
-    this.screenTex.source.scaleMode = 'nearest'
-    const spr = new Sprite(this.screenTex)
-    app.stage.addChild(spr)
-    app.stage.filters = [this.grade]
+    this.sceneLayer.filters = [this.grade]
+    this.app.stage.addChild(this.sceneLayer)
+    this.app.stage.addChild(this.makeVignette())
 
     // 输入
     addEventListener('keydown', e => {
@@ -67,53 +47,57 @@ export class Game {
     })
     addEventListener('keyup', e => (this.keys[e.key] = false))
     let holdTimer = 0
-    app.canvas.addEventListener('pointerdown', e => {
+    this.app.canvas.addEventListener('pointerdown', e => {
       this.audio.init()
       const [x, y] = this.toGame(e as PointerEvent)
       holdTimer = window.setTimeout(() => this.scene?.onHold?.(this, x, y), 550)
       this.scene?.onTap?.(this, x, y)
     })
-    app.canvas.addEventListener('pointerup', () => clearTimeout(holdTimer))
-    app.canvas.addEventListener('pointercancel', () => clearTimeout(holdTimer))
+    this.app.canvas.addEventListener('pointerup', () => clearTimeout(holdTimer))
+    this.app.canvas.addEventListener('pointercancel', () => clearTimeout(holdTimer))
 
-    // 暗角（质感层，画在逻辑画布最后）
-    const vg = this.ctx.createRadialGradient(W / 2, H / 2, H * 0.38, W / 2, H / 2, H * 0.75)
-    vg.addColorStop(0, 'rgba(0,0,0,0)')
-    vg.addColorStop(1, 'rgba(0,0,0,0.20)')
-    this.vignette = vg
-
-    app.ticker.add(() => this.tick())
+    this.app.ticker.add(() => {
+      if (this.scene) {
+        this.scene.t++
+        this.scene.update(this)
+      }
+      this.pressed.clear()
+    })
   }
 
-  /** 场景切换全屏色调（星露谷式时段氛围） */
+  /** 全屏色彩分级（星露谷式时段氛围） */
   setMood(m: Mood) {
     applyMood(this.grade, m)
   }
 
+  setScene(s: GameScene) {
+    if (this.scene) {
+      this.sceneLayer.removeChild(this.scene)
+      this.scene.destroy({ children: true })
+    }
+    this.scene = s
+    this.setMood('none')
+    this.sceneLayer.addChild(s)
+    s.enter(this)
+  }
+
   private toGame(e: PointerEvent): [number, number] {
-    const canvas = this.app!.canvas
-    const r = canvas.getBoundingClientRect()
+    const r = this.app.canvas.getBoundingClientRect()
     return [((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H]
   }
 
-  setScene(s: Scene) {
-    this.scene = s
-    this.t = 0
-    this.setMood('none')
-    s.enter?.(this)
-  }
-
-  private tick() {
-    this.t++
-    if (this.scene) {
-      this.scene.update(this)
-      this.scene.draw(this, this.ctx)
-      if (this.vignette) {
-        this.ctx.fillStyle = this.vignette
-        this.ctx.fillRect(0, 0, W, H)
-      }
-    }
-    this.screenTex?.source.update()
-    this.pressed.clear()
+  private makeVignette(): Sprite {
+    const c = document.createElement('canvas')
+    c.width = W
+    c.height = H
+    const x = c.getContext('2d')!
+    const vg = x.createRadialGradient(W / 2, H / 2, H * 0.38, W / 2, H / 2, H * 0.75)
+    vg.addColorStop(0, 'rgba(0,0,0,0)')
+    vg.addColorStop(1, 'rgba(0,0,0,0.20)')
+    x.fillStyle = vg
+    x.fillRect(0, 0, W, H)
+    const spr = new Sprite(Texture.from(c))
+    spr.eventMode = 'none'
+    return spr
   }
 }
