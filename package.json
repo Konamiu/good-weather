@@ -16,7 +16,10 @@
     "art:b2:refresh": "npm run art:b2:generate && npm run art:b2:verify",
     "art:b3:generate": "node tools/art/generate-b3-yard.mjs",
     "art:b3:verify": "node tools/art/verify-b3-yard.mjs",
-    "art:b3:refresh": "npm run art:b3:generate && npm run art:b3:verify"
+    "art:b3:refresh": "npm run art:b3:generate && npm run art:b3:verify",
+    "art:d2:generate": "node tools/art/generate-d2.mjs",
+    "art:d2:verify": "node tools/art/verify-d2.mjs",
+    "art:d2:refresh": "npm run art:d2:generate && npm run art:d2:verify"
   },
   "devDependencies": {
     "typescript": "^5.5.0",

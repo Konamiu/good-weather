@@ -1,0 +1,406 @@
+{
+  "version": 2,
+  "opaqueLimit": 64,
+  "opaqueCount": 57,
+  "colors": [
+    {
+      "name": "grass.0",
+      "hex": "#1d3d30",
+      "ramp": "grass",
+      "step": 0,
+      "use": "grass material ramp"
+    },
+    {
+      "name": "grass.1",
+      "hex": "#2e6a3a",
+      "ramp": "grass",
+      "step": 1,
+      "use": "grass material ramp"
+    },
+    {
+      "name": "grass.2",
+      "hex": "#4f8f42",
+      "ramp": "grass",
+      "step": 2,
+      "use": "grass material ramp"
+    },
+    {
+      "name": "grass.3",
+      "hex": "#7ab04e",
+      "ramp": "grass",
+      "step": 3,
+      "use": "grass material ramp"
+    },
+    {
+      "name": "grass.4",
+      "hex": "#b8cf6b",
+      "ramp": "grass",
+      "step": 4,
+      "use": "grass material ramp"
+    },
+    {
+      "name": "foliage.0",
+      "hex": "#16302a",
+      "ramp": "foliage",
+      "step": 0,
+      "use": "foliage material ramp"
+    },
+    {
+      "name": "foliage.1",
+      "hex": "#245237",
+      "ramp": "foliage",
+      "step": 1,
+      "use": "foliage material ramp"
+    },
+    {
+      "name": "foliage.2",
+      "hex": "#3b7740",
+      "ramp": "foliage",
+      "step": 2,
+      "use": "foliage material ramp"
+    },
+    {
+      "name": "foliage.3",
+      "hex": "#62a148",
+      "ramp": "foliage",
+      "step": 3,
+      "use": "foliage material ramp"
+    },
+    {
+      "name": "foliage.4",
+      "hex": "#9bc75c",
+      "ramp": "foliage",
+      "step": 4,
+      "use": "foliage material ramp"
+    },
+    {
+      "name": "cement.0",
+      "hex": "#3a3644",
+      "ramp": "cement",
+      "step": 0,
+      "use": "cement material ramp"
+    },
+    {
+      "name": "cement.1",
+      "hex": "#5c5866",
+      "ramp": "cement",
+      "step": 1,
+      "use": "cement material ramp"
+    },
+    {
+      "name": "cement.2",
+      "hex": "#8a8580",
+      "ramp": "cement",
+      "step": 2,
+      "use": "cement material ramp"
+    },
+    {
+      "name": "cement.3",
+      "hex": "#b0aa9c",
+      "ramp": "cement",
+      "step": 3,
+      "use": "cement material ramp"
+    },
+    {
+      "name": "cement.4",
+      "hex": "#d8cfb4",
+      "ramp": "cement",
+      "step": 4,
+      "use": "cement material ramp"
+    },
+    {
+      "name": "dirt.0",
+      "hex": "#3f2d32",
+      "ramp": "dirt",
+      "step": 0,
+      "use": "dirt material ramp"
+    },
+    {
+      "name": "dirt.1",
+      "hex": "#65463b",
+      "ramp": "dirt",
+      "step": 1,
+      "use": "dirt material ramp"
+    },
+    {
+      "name": "dirt.2",
+      "hex": "#8b684a",
+      "ramp": "dirt",
+      "step": 2,
+      "use": "dirt material ramp"
+    },
+    {
+      "name": "dirt.3",
+      "hex": "#b18b5a",
+      "ramp": "dirt",
+      "step": 3,
+      "use": "dirt material ramp"
+    },
+    {
+      "name": "dirt.4",
+      "hex": "#d5b879",
+      "ramp": "dirt",
+      "step": 4,
+      "use": "dirt material ramp"
+    },
+    {
+      "name": "brick.0",
+      "hex": "#4a2530",
+      "ramp": "brick",
+      "step": 0,
+      "use": "brick material ramp"
+    },
+    {
+      "name": "brick.1",
+      "hex": "#7a3a38",
+      "ramp": "brick",
+      "step": 1,
+      "use": "brick material ramp"
+    },
+    {
+      "name": "brick.2",
+      "hex": "#a85544",
+      "ramp": "brick",
+      "step": 2,
+      "use": "brick material ramp"
+    },
+    {
+      "name": "brick.3",
+      "hex": "#c97a55",
+      "ramp": "brick",
+      "step": 3,
+      "use": "brick material ramp"
+    },
+    {
+      "name": "brick.4",
+      "hex": "#e8a878",
+      "ramp": "brick",
+      "step": 4,
+      "use": "brick material ramp"
+    },
+    {
+      "name": "skin.0",
+      "hex": "#8f5f4a",
+      "ramp": "skin",
+      "step": 0,
+      "use": "skin material ramp"
+    },
+    {
+      "name": "skin.1",
+      "hex": "#c9926b",
+      "ramp": "skin",
+      "step": 1,
+      "use": "skin material ramp"
+    },
+    {
+      "name": "skin.2",
+      "hex": "#d9a97c",
+      "ramp": "skin",
+      "step": 2,
+      "use": "skin material ramp"
+    },
+    {
+      "name": "skin.3",
+      "hex": "#f4d1ae",
+      "ramp": "skin",
+      "step": 3,
+      "use": "skin material ramp"
+    },
+    {
+      "name": "skin.4",
+      "hex": "#fbe4c0",
+      "ramp": "skin",
+      "step": 4,
+      "use": "skin material ramp"
+    },
+    {
+      "name": "sky.0",
+      "hex": "#4a6a9a",
+      "ramp": "sky",
+      "step": 0,
+      "use": "sky material ramp"
+    },
+    {
+      "name": "sky.1",
+      "hex": "#5d84ad",
+      "ramp": "sky",
+      "step": 1,
+      "use": "sky material ramp"
+    },
+    {
+      "name": "sky.2",
+      "hex": "#79acd0",
+      "ramp": "sky",
+      "step": 2,
+      "use": "sky material ramp"
+    },
+    {
+      "name": "sky.3",
+      "hex": "#a8d8e8",
+      "ramp": "sky",
+      "step": 3,
+      "use": "sky material ramp"
+    },
+    {
+      "name": "sky.4",
+      "hex": "#d0ecf4",
+      "ramp": "sky",
+      "step": 4,
+      "use": "sky material ramp"
+    },
+    {
+      "name": "water.0",
+      "hex": "#243f59",
+      "ramp": "water",
+      "step": 0,
+      "use": "water material ramp"
+    },
+    {
+      "name": "water.1",
+      "hex": "#315f78",
+      "ramp": "water",
+      "step": 1,
+      "use": "water material ramp"
+    },
+    {
+      "name": "water.2",
+      "hex": "#4f88a3",
+      "ramp": "water",
+      "step": 2,
+      "use": "water material ramp"
+    },
+    {
+      "name": "water.3",
+      "hex": "#78b6c6",
+      "ramp": "water",
+      "step": 3,
+      "use": "water material ramp"
+    },
+    {
+      "name": "water.4",
+      "hex": "#b6dce0",
+      "ramp": "water",
+      "step": 4,
+      "use": "water material ramp"
+    },
+    {
+      "name": "hairLight",
+      "hex": "#5a4a56",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "hairBase",
+      "hex": "#2b2028",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "ink",
+      "hex": "#1f1a17",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "blueLight",
+      "hex": "#6b8fc2",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "blueBase",
+      "hex": "#4a6fa5",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "blueDark",
+      "hex": "#33507c",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "creamLight",
+      "hex": "#fffdf6",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "creamBase",
+      "hex": "#efe6d5",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "creamDark",
+      "hex": "#d8cdb8",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "redLight",
+      "hex": "#d97d70",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "redBase",
+      "hex": "#c4554d",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "redDark",
+      "hex": "#8f3d38",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "pants",
+      "hex": "#4a3c46",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "mouth",
+      "hex": "#a6524a",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "blush",
+      "hex": "#e8a598",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "white",
+      "hex": "#ffffff",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    },
+    {
+      "name": "gold",
+      "hex": "#f2cc8f",
+      "ramp": "project",
+      "use": "character, UI or shared accent"
+    }
+  ],
+  "exceptions": [
+    {
+      "name": "clear",
+      "hex": "#00000000",
+      "use": "transparent canvas"
+    },
+    {
+      "name": "groundShadow",
+      "hex": "#00000040",
+      "use": "character and ground contact shadow only"
+    },
+    {
+      "name": "canopyShadow",
+      "hex": "#16302a55",
+      "use": "tree-shadow overlay only"
+    }
+  ]
+}
