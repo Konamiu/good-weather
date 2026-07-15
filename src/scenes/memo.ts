@@ -3,7 +3,7 @@ import { Graphics, Sprite } from 'pixi.js'
 import type { Game } from '../core/engine'
 import { GameScene, W } from '../core/engine'
 import { label } from '../core/ui'
-import { Ch1Scene } from './ch1'
+import { TownScene } from './town'
 
 interface Entry {
   label: string
@@ -48,7 +48,7 @@ export class MemoScene extends GameScene {
     const e = ENTRIES[i]
     if (!e || 150 + i * 52 + 42 < y) return
     if (e.chapter > g.save.data.unlocked) return
-    if (e.chapter === 1) g.setScene(new Ch1Scene())
+    if (e.chapter === 1) g.setScene(new TownScene())
     // 后续章节在此路由
   }
 }

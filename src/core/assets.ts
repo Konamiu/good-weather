@@ -24,6 +24,17 @@ export interface GameAssets {
   doorVariants: Texture[] // 10帧：款1普通/款1塞单/款2普通/…
   propsFloor: Texture[] // 24件 32x32
   vehicles: Texture[] // 电瓶车/自行车 48x32
+  /** D2 俯视小镇 */
+  groundBase: Texture[] // 24格地表变体
+  autoGrassCement: Texture[] // blob-47
+  autoGrassDirt: Texture[]
+  autoDirtCement: Texture[]
+  groundOverlay: Texture[] // 树荫/磨损小路/生活痕迹 16格
+  tree: Texture
+  bldHome: Texture
+  bldUnitA: Texture
+  dialogFrame: Texture
+  iceHeart: Texture[] // 6态
 }
 
 const FILES = [
@@ -44,6 +55,16 @@ const FILES = [
   'door_variants_5x2_40x72.png',
   'props_floor_sheet.png',
   'props_floor_vehicles_2s_48x32.png',
+  'tileset_ground_base_v2_256x96.png',
+  'autotile_grass_on_cement_47t_256x192.png',
+  'autotile_grass_on_dirt_47t_256x192.png',
+  'autotile_dirt_on_cement_47t_256x192.png',
+  'tileset_ground_overlay_v2_256x64.png',
+  'prop_wutong_tree_64x96.png',
+  'bld_home_96x128.png',
+  'bld_unit_a_128x128.png',
+  'ui_dialog_frame_48x48.png',
+  'ui_ice_heart_6s_28x28.png',
 ]
 
 function slice(tex: Texture, fw: number, fh: number, n: number): Texture[] {
@@ -86,5 +107,15 @@ export async function loadAssets(): Promise<GameAssets> {
     doorVariants: slice(T('door_variants_5x2_40x72.png'), 40, 72, 10),
     propsFloor: sliceGrid(T('props_floor_sheet.png'), 32, 32, 8, 3),
     vehicles: slice(T('props_floor_vehicles_2s_48x32.png'), 48, 32, 2),
+    groundBase: sliceGrid(T('tileset_ground_base_v2_256x96.png'), 32, 32, 8, 3),
+    autoGrassCement: sliceGrid(T('autotile_grass_on_cement_47t_256x192.png'), 32, 32, 8, 6).slice(0, 47),
+    autoGrassDirt: sliceGrid(T('autotile_grass_on_dirt_47t_256x192.png'), 32, 32, 8, 6).slice(0, 47),
+    autoDirtCement: sliceGrid(T('autotile_dirt_on_cement_47t_256x192.png'), 32, 32, 8, 6).slice(0, 47),
+    groundOverlay: sliceGrid(T('tileset_ground_overlay_v2_256x64.png'), 32, 32, 8, 2),
+    tree: T('prop_wutong_tree_64x96.png'),
+    bldHome: T('bld_home_96x128.png'),
+    bldUnitA: T('bld_unit_a_128x128.png'),
+    dialogFrame: T('ui_dialog_frame_48x48.png'),
+    iceHeart: slice(T('ui_ice_heart_6s_28x28.png'), 28, 28, 6),
   }
 }
