@@ -33,7 +33,8 @@ interface Door {
   x: number
   done: boolean
   bubbleT: number
-  gfx: Graphics
+  style: number // 0-4 五款防盗门
+  spr: Sprite
   bubble: Container
   bubbleText: Text
 }
@@ -98,8 +99,13 @@ export class Ch1Scene extends GameScene {
   }
 
   private buildWorld(g: Game) {
+    // 墙面：B2基底瓷砖连续平铺（三款随机，营造新旧差异）
+    for (let y = WORLD_H - 82; y > -100; y -= 90) {
+      const tile = new Sprite(g.assets.wallBase[(Math.random() * 3) | 0])
+      tile.position.set(0, y)
+      this.world.addChild(tile)
+    }
     const walls = new Graphics()
-    walls.rect(0, -60, W, WORLD_H + 120).fill('#cfc6b0')
     for (let f = 0; f < FLOORS; f++) {
       const sy = slabY(f)
       walls.rect(0, sy, W, 8).fill('#8a8580') // 楼板
@@ -115,18 +121,37 @@ export class Ch1Scene extends GameScene {
       this.world.addChild(label(`${f + 1}F`, 10, '#8a8580', { x: 46, y: slabY(f) - 60 }))
       if (f < FLOORS - 1) this.world.addChild(label('▲', 12, '#6f6a5e', { x: STAIR_X + 28, y: slabY(f) - 88, anchorX: 0.5 }))
     }
-    // 门
-    for (let f = 0; f < FLOORS; f++)
+    // 门（B2五款防盗门，同层两户不同款）
+    for (let f = 0; f < FLOORS; f++) {
+      let last = -1
       for (const x of DOOR_XS) {
-        const gfx = new Graphics()
-        this.paintDoor(gfx, f, x, false)
-        const bubbleText = label('', 10, '#1f1a17', { x: x + 22, y: slabY(f) - 92, anchorX: 0.5 })
+        let style = (Math.random() * 5) | 0
+        if (style === last) style = (style + 1) % 5
+        last = style
+        const spr = new Sprite(g.assets.doorVariants[style * 2])
+        spr.position.set(x, slabY(f) - 72)
+        const bubbleText = label('', 10, '#1f1a17', { x: x + 22, y: slabY(f) - 96, anchorX: 0.5 })
         const bubble = new Container()
-        bubble.addChild(new Graphics().rect(x - 8, slabY(f) - 96, 60, 20).fill({ color: 0xfaf7f0, alpha: 0.95 }), bubbleText)
+        bubble.addChild(new Graphics().rect(x - 8, slabY(f) - 100, 60, 20).fill({ color: 0xfaf7f0, alpha: 0.95 }), bubbleText)
         bubble.visible = false
-        this.world.addChild(gfx, bubble)
-        this.doors.push({ floor: f, x, done: false, bubbleT: 999, gfx, bubble, bubbleText })
+        this.world.addChild(spr, bubble)
+        this.doors.push({ floor: f, x, done: false, bubbleT: 999, style, spr, bubble, bubbleText })
       }
+    }
+    // 每层随机杂物（B2地面道具），1F固定停一辆电瓶车
+    const slots = [118, 240]
+    for (let f = 0; f < FLOORS; f++) {
+      const sy = slabY(f)
+      const n = f === FLOORS - 1 ? 1 : 1 + ((Math.random() * 2) | 0) // 顶层最空
+      for (let i = 0; i < n; i++) {
+        const p = new Sprite(g.assets.propsFloor[(Math.random() * g.assets.propsFloor.length) | 0])
+        p.position.set(slots[i % slots.length] + ((Math.random() * 12) | 0), sy - 32)
+        this.world.addChild(p)
+      }
+    }
+    const bike = new Sprite(g.assets.vehicles[0])
+    bike.position.set(232, slabY(0) - 32)
+    this.world.addChild(bike)
     // 浮尘
     for (let i = 0; i < 48; i++) {
       const spr = new Sprite(g.assets.rain[0]) // 任意纹理，立即换成白点
@@ -141,14 +166,6 @@ export class Ch1Scene extends GameScene {
     this.boyAnim.set(g.assets.boyIdle, 24)
     this.world.addChild(this.boyAnim.spr, this.bang)
     this.addChild(this.world)
-  }
-
-  private paintDoor(gfx: Graphics, floor: number, x: number, done: boolean) {
-    const sy = slabY(floor)
-    gfx.clear()
-    gfx.rect(x, sy - 70, 36, 70).fill(done ? '#6f5344' : '#8a6a52')
-    gfx.rect(x + 28, sy - 40, 4, 8).fill('#5a4436') // 门把手
-    if (done) gfx.rect(x + 6, sy - 12, 14, 8).fill('#faf7f0') // 塞好的传单
   }
 
   private buildStreet(g: Game) {
@@ -294,7 +311,7 @@ export class Ch1Scene extends GameScene {
   private nearestDoor(): Door | null {
     const b = this.boy
     if (this.phase !== 'building' || b.climbT > 0) return null
-    return this.doors.find(d => d.floor === b.floor && !d.done && Math.abs(d.x + 18 - (b.x + CW / 2)) < 30) || null
+    return this.doors.find(d => d.floor === b.floor && !d.done && Math.abs(d.x + 20 - (b.x + CW / 2)) < 32) || null
   }
 
   private tryClimb() {
@@ -312,7 +329,7 @@ export class Ch1Scene extends GameScene {
     d.done = true
     this.given++
     g.audio.sndOk()
-    this.paintDoor(d.gfx, d.floor, d.x, true)
+    d.spr.texture = g.assets.doorVariants[d.style * 2 + 1] // 换成"门缝塞了传单"态
     const r = Math.random()
     if (r < 0.18) { d.bubbleText.text = '汪汪汪！'; d.bubbleT = 0; g.audio.sndNo() }
     else if (r < 0.28) { d.bubbleText.text = '谁呀？！'; d.bubbleT = 0 }
@@ -409,10 +426,10 @@ export class Ch1Scene extends GameScene {
       const wy = y + cam
       const sy = slabY(b.floor)
       const d = this.doors.find(
-        d => d.floor === b.floor && !d.done && Math.abs(d.x + 18 - x) < 26 && wy > sy - 80 && wy < sy + 10,
+        d => d.floor === b.floor && !d.done && Math.abs(d.x + 20 - x) < 26 && wy > sy - 80 && wy < sy + 10,
       )
       if (d) {
-        b.targetX = d.x + 18 - CW / 2
+        b.targetX = d.x + 20 - CW / 2
         b.action = { kind: 'door', door: d }
         return
       }

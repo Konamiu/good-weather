@@ -1,5 +1,5 @@
-import { deflateSync } from 'node:zlib'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { deflateSync, inflateSync } from 'node:zlib'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 
 export const P = Object.freeze({
@@ -146,6 +146,39 @@ export function encodePng(canvas) {
 export function savePng(path, canvas) {
   mkdirSync(dirname(path), { recursive: true })
   writeFileSync(path, encodePng(canvas))
+}
+
+/** 读取本工具生成的RGBA PNG（8-bit、filter 0），供组合预览复用已有精灵。 */
+export function loadPng(path) {
+  const png = readFileSync(path)
+  const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
+  if (!png.subarray(0, 8).equals(signature)) throw new Error(`not a PNG: ${path}`)
+  let offset = 8
+  let width = 0
+  let height = 0
+  const idat = []
+  while (offset < png.length) {
+    const size = png.readUInt32BE(offset)
+    const type = png.toString('ascii', offset + 4, offset + 8)
+    const data = png.subarray(offset + 8, offset + 8 + size)
+    if (type === 'IHDR') {
+      width = data.readUInt32BE(0)
+      height = data.readUInt32BE(4)
+      if (data[8] !== 8 || data[9] !== 6) throw new Error(`expected 8-bit RGBA PNG: ${path}`)
+    }
+    if (type === 'IDAT') idat.push(data)
+    offset += size + 12
+    if (type === 'IEND') break
+  }
+  const raw = inflateSync(Buffer.concat(idat))
+  const stride = width * 4
+  const out = new PixelCanvas(width, height)
+  for (let y = 0; y < height; y++) {
+    const row = y * (stride + 1)
+    if (raw[row] !== 0) throw new Error(`unsupported PNG filter ${raw[row]}: ${path}`)
+    out.pixels.set(raw.subarray(row + 1, row + 1 + stride), y * stride)
+  }
+  return out
 }
 
 export function sheet(frames) {

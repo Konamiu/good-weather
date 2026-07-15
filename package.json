@@ -10,7 +10,13 @@
     "preview": "vite preview",
     "art:generate": "node tools/art/generate-characters-1.2.mjs",
     "art:verify": "node tools/art/verify-characters-1.2.mjs",
-    "art:refresh": "npm run art:generate && npm run art:verify"
+    "art:refresh": "npm run art:generate && npm run art:verify",
+    "art:b2:generate": "node tools/art/generate-b2-stairwell.mjs",
+    "art:b2:verify": "node tools/art/verify-b2-stairwell.mjs",
+    "art:b2:refresh": "npm run art:b2:generate && npm run art:b2:verify",
+    "art:b3:generate": "node tools/art/generate-b3-yard.mjs",
+    "art:b3:verify": "node tools/art/verify-b3-yard.mjs",
+    "art:b3:refresh": "npm run art:b3:generate && npm run art:b3:verify"
   },
   "devDependencies": {
     "typescript": "^5.5.0",
